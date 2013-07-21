@@ -1,0 +1,3 @@
+C:\Users\Fredrik\Documents\Privat\node-dispatch-router\obj\Debug\node-dispatch-router.csprojResolveAssemblyReference.cache
+C:\Users\Fredrik\Documents\Privat\node-dispatch-router\obj\Debug\node-dispatch-router.dll
+C:\Users\Fredrik\Documents\Privat\node-dispatch-router\obj\Debug\node-dispatch-router.pdb
