@@ -144,33 +144,41 @@ function createController(options, parent) { //relative will be used to find cor
           dispatch_method = self._dispatch[http_method];
 
       self.next = intercept(function () {
-        self.next = next;
-
+        
         var url = options.actionContext.Request.url,
             urlLeft = url.substr(options.relativeDir.length),
             url = require('url').parse(urlLeft);
 
         if(!url.pathname) {
-          //no more routes
-          var action = self._actions[self.defaultAction] || {},
-              cb = action[http_method] || callNext;
-          
-          return cb.call(options.actionContext);
+          //no more routes, it must be default action
+          self.next = intercept(next);
+          var action = self._actions[self.defaultAction],
+              cb = action[http_method];
+
+          return ((action && cb)? cb.call(options.actionContext) : next());
         }
 
-        console.log('pathname: ' + url.pathname);
-        //pathname exists, it
         var routesLeft = url.pathname.split('/'),
-            action = self._actions[routesLeft.shift()] || {},
-            cb = action[http_method] || callNext;
+            nextRoute = routesLeft.shift(),
+            action = self._actions[nextRoute];
 
-        console.log('routesLeft.length: ' + routesLeft.length + ', cb.length: ' + cb.length);
-
-        if (routesLeft.length === cb.length) {
-          
-          cb.apply(options.actionContext, routesLeft);
+        if(action && (cb = action[http_method]) && routesLeft.length <= cb.length ) {
+          //the controller has a own action that has correct interface.
+          self.next = intercept(check_children);
+          return cb.apply(options.actionContext, routesLeft);
         }
-        return;
+
+        check_children();
+
+        function check_children() {
+          // check if we got a sub controller by that name (nextRoute)
+          var child = self._children[nextRoute];
+          if (child) {
+            // it exists, lets use it.
+            return child(req, res, intercept(next));
+          }
+          next();
+        }
       });
       dispatch_method.call(options.actionContext, self.next);
     });
@@ -192,6 +200,8 @@ function createController(options, parent) { //relative will be used to find cor
   };
   Controller.defaultAction = Controller._dispatch.defaultAction;
   Controller._actions = {};
+  Controller._children = {};
+
 
   require('fs').readdirSync(Controller.src).forEach(function (file) {
     var filepath = Controller.src + '/' + file,
@@ -218,7 +228,7 @@ function createController(options, parent) { //relative will be used to find cor
         Controller._actions[file] = require(filepath);
       }
     } else if (info.isDirectory()) {
-      Controller.children[file] = createController({
+      Controller._children[file] = createController({
         baseDir: options.baseDir,
         relativeDir: filepath,
         actionContext: options.actionContext

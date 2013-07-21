@@ -63,14 +63,20 @@
     <Content Include="index.js" />
     <Content Include="test\.dispatch.js" />
     <Content Include="test\.error.js" />
+    <Content Include="test\add.js" />
     <Content Include="test\index.js" />
     <Content Include="test.js" />
+    <Content Include="test\sub\.dispatch.js" />
+    <Content Include="test\sub\add.js" />
+    <Content Include="test\sub\index.js" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="LICENSE" />
     <Content Include="package.json" />
     <Content Include="README.md" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Content Include="test\readme.md" />
+  </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\TypeScript\Microsoft.TypeScript.targets" />
 </Project>

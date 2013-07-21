@@ -21,3 +21,11 @@ structure them does people less talk about. This is mine solution to that mess.
     var router = require('dispatch-router');
 
     app.use(require(router.basic('
+
+
+
+#Ambiguous routes priority
+
+1. Try to check if itself hthere exists a action on that route.
+2. .dispatch/{http_method}
+3. 

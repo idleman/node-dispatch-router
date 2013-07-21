@@ -13,18 +13,19 @@ module.exports = (function (undefined) {
       assert.equal(!!this.Error, true);
       assert.equal(this.Request.method, 'GET'); //custom function
 
-      this.Response.routes.push('show/get(' + ((id === undefined) ? '' : id)  + ')');
+      this.Response.routes.push('index/get(' + ((id === undefined) ? '' : id)  + ')');
       this.View('', this.Response.routes);
     },
 
     post: function (model) {
+      //model 
       assert.equal(typeof model, 'object');
       assert.equal(!!this.Request, 'function');
       assert.equal(!!this.Response, 'function');
       assert.equal(!!this.Error, 'function');
       assert.equal(this.Request.method, 'POST'); //custom function
 
-      this.Response.routes.push('show/post');
+      this.Response.routes.push('index/post');
       this.View('', model);
     }
   };

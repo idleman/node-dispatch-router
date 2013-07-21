@@ -18,6 +18,7 @@ module.exports = (function (undefined) {
     },
 
     post: function (model) {
+      //model 
       assert.equal(typeof model, 'object');
       assert.equal(!!this.Request, 'function');
       assert.equal(!!this.Response, 'function');
