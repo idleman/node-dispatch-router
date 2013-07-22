@@ -8,17 +8,11 @@ module.exports = (function (undefined) {
   var methods = {
     get: function (a, b) { //will be any parameters, if passed.
       //only get request
-      assert.equal(!!this.Request, true);
-      assert.equal(!!this.Response, true);
-      assert.equal(!!this.Error, true);
-      assert.equal(this.Request.method, 'GET'); //custom function
 
-      var a = (a === undefined) ? 0 : a,
-          b = (b === undefined) ? 0 : b,
-          a = parseInt(a),
-          b = parseInt(b);
+      var a = (a === undefined)?'': a,
+          b = (b === undefined)? '' : b;
 
-      this.View('', a + b);
+      this.Response.end(a + b);
     }
   };
 

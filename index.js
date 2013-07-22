@@ -108,12 +108,25 @@ function callNext() {
 
 function createController(options, parent) { //relative will be used to find correct action4 xz 
   //ignore extension in request, and allow the application to take it as a hint to what it should return
-  function Controller(req, res, next) {
+  function Controller(req, res, next, context) {
     if(req.url.indexOf(options.relativeDir) !== 0) {
       next();
     }
-    var self = Controller;
 
+    var self = Controller;
+    /*
+    if (!context) {
+      context = {
+        Controller: {
+          src: self.src
+        },
+        Request: req,
+        Response: res,
+
+      };
+
+    }
+    */
     options.actionContext.Controller = self;
     options.actionContext.Request = req;
     options.actionContext.Response = res;
@@ -230,7 +243,7 @@ function createController(options, parent) { //relative will be used to find cor
     } else if (info.isDirectory()) {
       Controller._children[file] = createController({
         baseDir: options.baseDir,
-        relativeDir: filepath,
+        relativeDir: options.relativeDir + file + '/',
         actionContext: options.actionContext
       }, Controller);
     }

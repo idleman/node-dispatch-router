@@ -25,52 +25,108 @@ describe('dispatch-router', function () {
     it('should return a function', function () {
       assert.equal(typeof handler, 'function');
     });
-    describe('GET /', function () {
-      var req = {
-        method: 'GET',
-        url: '/'
-      };
+    // We must check its context. was if multiple requessts are routed in parallel.
+    describe('GET', function () {
+      function createRequest() {
+        var argv = Array.prototype.slice.call(arguments),
+            url = '/' + argv.join('/');
 
-      it('should invoke default action', function (next) { 
-        var res = {
+        return {
+          method: 'GET',
+          url: url
+        };
+      }
+
+      function createResponse(expected, cb) {
+        return {
           end: function (data) {
-            var routes = JSON.parse(data);
-            assert.equal(routes.length, 3);
-            assert.equal(routes[0], '.dispatch/any');
-            assert.equal(routes[1], '.dispatch/get');
-            assert.equal(routes[2], 'index/get()');
-            next();
+            assert.equal(data, expected);
+            cb();
           }
         };
+      }
+      it('/', function (next) {
+        var req = createRequest();
+        var res = createResponse('/hello-world', next);
         //console.log('handler: ' + handler);
         handler(req, res, function (err) {
           assert.fail(err);
         });
       });
+      it('/add', function (next) {
+        var req = createRequest('add');
+        var res = createResponse(0, next);
+        //console.log('handler: ' + handler);
+        handler(req, res, function (err) {
+          assert.fail(err);
+        });
+      });
+
+      
+      it('/add/hello', function (next) {
+        var req = createRequest('add', 'hello');
+        var res = createResponse('hello', next);
+        //console.log('handler: ' + handler);
+        handler(req, res, function (err) {
+          assert.fail(err);
+        });
+      });
+      it('/add/hello/world', function (next) {
+        var req = createRequest('add', 'hello', 'world');
+        var res = createResponse('helloworld', next);
+        //console.log('handler: ' + handler);
+        handler(req, res, function (err) {
+          assert.fail(err);
+        });
+      });
+      describe('parallel', function () {
+        it('GET /delay/100 AND /add/2/3', function (next) {
+          var counter = 0;
+
+          var req1 = createRequest('delay', 100);
+          var res1 = createResponse('100', finish);
+          var req2 = createRequest('add', 2, 3);
+          var res2 = createResponse('23', finish);
+          handler(req1, res1);
+          handler(req2, res2);
+
+          function finish(err) {
+            if (++counter === 2) {
+              next(err);
+            } else if (err) {
+              next(err);
+            }
+          }
+        });
+
+      });
     });
+   
+  });
+});
+/*
     
     describe('GET /sub', function () {
-      function createRequest(method) {
+      function createRequest(method, param) {
         var url = '/sub';
         if (method !== undefined) {
           url += '/' + method;
         }
+        if (param !== undefined) {
+          url += '/' + param;
+        }
+
         return {
           method: 'GET',
           url: url
         };
       }
       it('should invoke subcontroller', function (next) {
-        var req = createRequest();
+        var req = createRequest('reply', 'hello-world');
         var res = {
           end: function (data) {
-            var routes = JSON.parse(data);
-            assert.equal(routes.length, 5);
-            assert.equal(routes[0], '.dispatch/any');
-            assert.equal(routes[1], '.dispatch/get');
-            assert.equal(routes[2], 'sub/.dispatch/any');
-            assert.equal(routes[3], 'sub/.dispatch/get');
-            assert.equal(routes[4], 'sub/.dispatch/index');
+            var res = JSON.parse(data);
+            assert.equal(res, 'hello-world');
             next();
           }
         };
@@ -196,5 +252,4 @@ describe('dispatch-router', function () {
         });
       });
     });
-  });
-});
+    */
