@@ -9,8 +9,6 @@ The idea is to use complete directories as "controllers" instead of one specific
 The controller directory can then contain actions, error handlers and dispatchers (invoked
 for each request that pass that folder). Example, say we got the following express app:
 
-´´´
-
         var app = express();
             
         app.get('/', function (req, res) {
@@ -25,40 +23,29 @@ for each request that pass that folder). Example, say we got the following expre
           res.end('post updated: ' + id);
         });
 
-```
-
  We can translate it into the following dispatch-router controllers (files):
 
 /index.js
-´´´
 
         module.exports.get = function() {
           this.Response.end('hello world');
         };
 
-```
 /posts.js
-´´´
 
         module.exports.get = function(category) {
           this.Response.end('post: ' + category);
         };
 
-```
-
 /post.js
-´´´
 
         module.exports.get = function(id) {
           this.Response.end('post updated: ' + id);
         };
 
-```
-##Current status
+##Current status (Not ready for production)
 
 Not stable for others requests than GET yet. However, you can use it with together with express:
-
-´´´
 
         var router = require('dispatch-router'),
             express = require('express'),
@@ -71,8 +58,6 @@ Not stable for others requests than GET yet. However, you can use it with togeth
 
         app.listen(80);
 
-```
-
 However, it is not recommended.
 
 ##Template engines.
@@ -81,7 +66,6 @@ Do you want to enable your perfect template engine within your routes? Simple, j
 to the construction method:
 
 server.js
-´´´
 
         app.use(router.basic('absolute/path/to/your/root/controller', {
           actionContext: {
@@ -94,10 +78,8 @@ server.js
           }
         });
 
-```
 
 controllers/index.js
-´´´
 
         module.exports = (function() {
           return {
@@ -109,11 +91,8 @@ controllers/index.js
           };
         })();
 
-```
 
 It may be a great idea to define simliar functions for json, file, content:
-
-´´´
 
         app.use(router.basic('absolute/path/to/your/root/controller', {
           actionContext: {
@@ -129,10 +108,8 @@ It may be a great idea to define simliar functions for json, file, content:
           }
         });
 
-```
 
 controllers/index.js
-´´´
 
         module.exports = (function() {
           return {
@@ -148,7 +125,6 @@ controllers/index.js
           };
         })();
 
-```
 
 ##What with subfolders? 
 
@@ -164,7 +140,6 @@ If you want to create a subfolder, just create another folder within your base f
 This i when you should use dispatchers:
 
 .dispatcher.js
-´´´
 
         module.exports = (function() {
 
@@ -179,8 +154,6 @@ This i when you should use dispatchers:
             }
           };
         })();
-
-´´´
 
 This is very good for logging, authentication, caching. Prefer to put common code within the dispatchers.
 
