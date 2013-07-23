@@ -10,6 +10,7 @@ The controller directory can then contain actions, error handlers and dispatcher
 for each request that pass that folder). Example, say we got the following express app:
 
 ´´´
+
         var app = express();
             
         app.get('/', function (req, res) {
@@ -23,34 +24,42 @@ for each request that pass that folder). Example, say we got the following expre
           var id = req.param.id;
           res.end('post updated: ' + id);
         });
-        //...
+
 ```
+
  We can translate it into the following dispatch-router controllers (files):
 
 /index.js
 ´´´
+
         module.exports.get = function() {
           this.Response.end('hello world');
         };
+
 ```
 /posts.js
 ´´´
+
         module.exports.get = function(category) {
           this.Response.end('post: ' + category);
         };
+
 ```
 
 /post.js
 ´´´
+
         module.exports.get = function(id) {
           this.Response.end('post updated: ' + id);
         };
+
 ```
 ##Current status
 
 Not stable for others requests than GET yet. However, you can use it with together with express:
 
 ´´´
+
         var router = require('dispatch-router'),
             express = require('express'),
             app = express();
@@ -61,6 +70,84 @@ Not stable for others requests than GET yet. However, you can use it with togeth
         });
 
         app.listen(80);
+
+```
+
+However, it is not recommended.
+
+##Template engines.
+
+Do you want to enable your perfect template engine within your routes? Simple, just give a actionContext
+to the construction method:
+
+server.js
+´´´
+
+        app.use(router.basic('absolute/path/to/your/root/controller', {
+          actionContext: {
+            View: function(view, data) {
+              // code here to generate the HTML code.
+
+              var src = this.Controller.src; //path of the controller if you need it
+              this.Response; //the response object.
+            }
+          }
+        });
+
+```
+
+controllers/index.js
+´´´
+
+        module.exports = (function() {
+          return {
+            get:  function() {
+              this.View('main', {
+                title: 'startpage'
+              });
+            }
+          };
+        })();
+
+```
+
+It may be a great idea to define simliar functions for json, file, content:
+
+´´´
+
+        app.use(router.basic('absolute/path/to/your/root/controller', {
+          actionContext: {
+            Json: function(data) {
+              this.Response.end(JSON.stringify(data));
+            },
+            Json: function(content) {
+              this.Response.end(content);
+            },
+            File: function(src) {
+              //use some effcient way to send the file contents and generate a download prompt
+            }
+          }
+        });
+
+```
+
+controllers/index.js
+´´´
+
+        module.exports = (function() {
+          return {
+            get:  function() {
+              this.Json({
+                title: 'hello world'
+              });
+              // or
+              this.Content('hello world');
+              //or
+              this.File('hello.bin')
+            }
+          };
+        })();
+
 ```
 
 ##What with subfolders? 
@@ -74,91 +161,31 @@ If you want to create a subfolder, just create another folder within your base f
 
 
 ##Do you only want to run some type of code for some controllers?
-Just create a dispatcher file:
+This i when you should use dispatchers:
 
 .dispatcher.js
 ´´´
+
         module.exports = (function() {
 
           return {
-            any: function(next) { // For each request
-
-              if(this.Request.method !== 'GET') {
-                return next(new Error('We do not support others http methods than GET right now :(');
-              }
-              
-              next(); //continue to next handler.
+            any: function(next) {
+              // For each request
+              next();
             },
-            get: function(next) { // For each 'GET' request,
-              //maybe turn on or efficent caching here for this specific folder and all subfolders/controllers.
-              next(); //continue to next handler.
+            get: function(next) { 
+              // For each 'GET' request,
+              next();
             }
           };
         })();
+
 ´´´
 
-##Middleware (for express to example)
-´´´
-        var router = require('dispatch-router'),
-            express = require('express'),
-            app = express();
+This is very good for logging, authentication, caching. Prefer to put common code within the dispatchers.
 
-        app.use(router.basic('absolute/path/to/your/root/controller');
 
-        // ...
-        app.listen(80);
-        
-
-```
 ##Performance? Better than express.
 
-Are you using express today and scared to use dispatch-router? Don´t be.
-Dispatch-router is in current shape faster than express (by 10%).
-
-
-
-Checkout
-
-
-
-
-
-
-
-        /index.js
-        /posts.js
-        /post.s        
-
-If you have
-
-This gives you a more scalable approach on many url. 
-
-##Idea
-
-
-
-
-
-´´´
-    app.get('/', function(req, res) {
-      //...
-    });
-    app.get('/user/:id', function(req, res) {
-      //...
-    });
-
-´´´
-
-
-´´´
-    var router = require('dispatch-router');
-
-    app.use(require(router.basic('
-
-
-
-#Ambiguous routes priority
-
-1. Try to check if itself hthere exists a action on that route.
-2. .dispatch/{http_method}
-3. 
+Dispatch-router is in current shape faster than express (by 10%). However, the library
+is in current shape not a complete webframework and does then implement all required http methods. 
