@@ -130,14 +130,16 @@ controllers/index.js
 
 If you want to create a subfolder, just create another folder within your base folder and so on:
 
-/                 : GET /
-/a                : GET /a
-/a/b              : GET /a/b
-/a/b/c            : GET /a/b/c
+- /                 : GET /
+- /a                : GET /a
+- /a/b              : GET /a/b
+- /a/b/c            : GET /a/b/c
 
 
-##Do you only want to run some type of code for some controllers?
-This i when you should use dispatchers:
+##Dispatchers
+Dispatchers allow you to run specific code before all actions and before any sub controller get invoked.
+It is a great place to put common code, as authentication, logging and caching.
+Allows prefer to put common code within the dispatchers.
 
 .dispatcher.js
 
@@ -155,10 +157,9 @@ This i when you should use dispatchers:
           };
         })();
 
-This is very good for logging, authentication, caching. Prefer to put common code within the dispatchers.
-
 
 ##Performance? Better than express.
 
 Dispatch-router is in current shape faster than express (by 10%). However, the library
-is in current shape not a complete webframework and does then implement all required http methods. 
+is in current shape not a complete webframework and does then implement all required http methods.
+It is expected however to change within 1 month.

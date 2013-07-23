@@ -1,6 +1,6 @@
 {
   "name": "dispatch-router",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "Powerful routing.",
   "main": "index.js",
   "scripts": {
