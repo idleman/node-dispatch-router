@@ -25,7 +25,18 @@ describe('dispatch-router', function () {
     it('should return a function', function () {
       assert.equal(typeof handler, 'function');
     });
-    // We must check its context. was if multiple requessts are routed in parallel.
+    describe('POST', function () {
+      function createRequest() {
+        var argv = Array.prototype.slice.call(arguments),
+            body = argv.pop(),
+            url = '/' + argv.join('/');
+
+        return {
+          method: 'GET',
+          url: url
+        };
+      }
+    });
     describe('GET', function () {
       function createRequest() {
         var argv = Array.prototype.slice.call(arguments),
@@ -79,6 +90,36 @@ describe('dispatch-router', function () {
           assert.fail(err);
         });
       });
+      it('/trace', function (next) {
+        var expected = JSON.stringify([
+          '.dispatch/any',
+          '.dispatch/get',
+          'trace/get'
+        ]);
+        var req = createRequest('trace');
+        var res = createResponse(expected, next);
+        //console.log('handler: ' + handler);
+        handler(req, res, function (err) {
+          assert.fail(err);
+        });
+      });
+      it('/sub', function (next) {
+        var req = createRequest('sub', 'reply');
+        var res = createResponse('', next);
+        //console.log('handler: ' + handler);
+        handler(req, res, function (err) {
+          assert.fail(err);
+        });
+      });
+      it('/sub/hi', function (next) {
+        var req = createRequest('sub', 'reply', 'hi');
+        var res = createResponse('hi', next);
+        //console.log('handler: ' + handler);
+        handler(req, res, function (err) {
+          assert.fail(err);
+        });
+      });
+
       describe('parallel', function () {
         it('GET /delay/100 AND /add/2/3', function (next) {
           var counter = 0;
@@ -98,10 +139,8 @@ describe('dispatch-router', function () {
             }
           }
         });
-
       });
     });
-   
   });
 });
 /*

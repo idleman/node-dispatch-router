@@ -60,15 +60,19 @@
   </PropertyGroup>
   <ItemGroup>
     <Content Include=".gitignore" />
+    <Content Include="benchmark\dispatch-router\controllers\index.js" />
+    <Content Include="benchmark\dispatch-router\index.js" />
+    <Content Include="benchmark\express\index.js" />
+    <Content Include="benchmark\pure-node\index.js" />
     <Content Include="index.js" />
     <Content Include="test\.dispatch.js" />
     <Content Include="test\.error.js" />
     <Content Include="test\add.js" />
+    <Content Include="test\trace.js" />
+    <Content Include="test\delay.js" />
     <Content Include="test\index.js" />
     <Content Include="test.js" />
-    <Content Include="test\sub\.dispatch.js" />
-    <Content Include="test\sub\add.js" />
-    <Content Include="test\sub\index.js" />
+    <Content Include="test\sub\reply.js" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="LICENSE" />
@@ -78,5 +82,6 @@
   <ItemGroup>
     <Content Include="test\readme.md" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\TypeScript\Microsoft.TypeScript.targets" />
 </Project>

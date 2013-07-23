@@ -12,7 +12,7 @@ module.exports = (function () {
       assert.equal(!!this.Response, true);
       assert.equal(typeof this.View, 'function'); //custom function
 
-      this.Response.routes = ['.dispatch/any'];
+      this.stackTrace = ['.dispatch/any'];
       next();
     },
 
@@ -24,7 +24,7 @@ module.exports = (function () {
       assert.equal(!!this.Response, true);
       assert.equal(typeof this.View, 'function'); //custom function
       assert.equal(this.Request.method, 'GET'); //custom function
-      this.Response.routes.push('.dispatch/get');
+      this.stackTrace.push('.dispatch/get');
       next();
     },
 

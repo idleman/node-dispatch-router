@@ -103,7 +103,7 @@ var http_route_map = {
 };
 
 function callNext() {
-  this.Controller.next();
+  this.next();
 }
 
 function createController(options, parent) { //relative will be used to find correct action4 xz 
@@ -112,63 +112,68 @@ function createController(options, parent) { //relative will be used to find cor
     if(req.url.indexOf(options.relativeDir) !== 0) {
       next();
     }
-
     var self = Controller;
-    /*
-    if (!context) {
+
+    if(!context) {
       context = {
         Controller: {
           src: self.src
         },
         Request: req,
         Response: res,
-
+        Error: function (err) {
+          if (self._error) {
+            if (err && err.code && self._error[err.code]) {
+              return self._error[err.code].call(context, err);
+            } else {
+              return self._error.any.call(context, err);
+            }
+          } else {
+            next(err);
+          }
+        }
       };
 
-    }
-    */
-    options.actionContext.Controller = self;
-    options.actionContext.Request = req;
-    options.actionContext.Response = res;
-    options.actionContext.Error = function (err) {
-      if (self._error) {
-        if (err && err.code && self._error[err.code]) {
-          return self._error[err.code].call(options.actionContext, err);
-        } else {
-          return self._error.any.call(options.actionContext, err);
+      var tmp = options.actionContext;
+      for (var prop in tmp) {
+        if (tmp.hasOwnProperty(prop) && !context[prop]) {
+          context[prop] = tmp[prop];
         }
-      } else {
-        next(err);
       }
-    };
 
+    }
+
+    
     function intercept(cb) {
       return function(err) {
         if(err) {
-          options.actionContext.Error(err);
+          context.Error(err);
         } else {
           cb();
         }
       }
     }
 
-    self.next = intercept(function () {
-      var http_method = http_route_map[options.actionContext.Request.method],
+    context.next = intercept(function () {
+      var http_method = http_route_map[context.Request.method],
           dispatch_method = self._dispatch[http_method];
 
-      self.next = intercept(function () {
+      context.next = intercept(function () {
         
-        var url = options.actionContext.Request.url,
+        var url = context.Request.url,
             urlLeft = url.substr(options.relativeDir.length),
             url = require('url').parse(urlLeft);
 
         if(!url.pathname) {
           //no more routes, it must be default action
-          self.next = intercept(next);
-          var action = self._actions[self.defaultAction],
-              cb = action[http_method];
+          context.next = intercept(next);
 
-          return ((action && cb)? cb.call(options.actionContext) : next());
+          var action = self._actions[self.defaultAction],
+              cb = null;
+          if(!action || !(cb = action[http_method])) {
+            return next();
+          }
+          return cb.call(context);
         }
 
         var routesLeft = url.pathname.split('/'),
@@ -177,8 +182,8 @@ function createController(options, parent) { //relative will be used to find cor
 
         if(action && (cb = action[http_method]) && routesLeft.length <= cb.length ) {
           //the controller has a own action that has correct interface.
-          self.next = intercept(check_children);
-          return cb.apply(options.actionContext, routesLeft);
+          context.next = intercept(check_children);
+          return cb.apply(context, routesLeft);
         }
 
         check_children();
@@ -188,15 +193,15 @@ function createController(options, parent) { //relative will be used to find cor
           var child = self._children[nextRoute];
           if (child) {
             // it exists, lets use it.
-            return child(req, res, intercept(next));
+            return child(req, res, intercept(next), context);
           }
           next();
         }
       });
-      dispatch_method.call(options.actionContext, self.next);
+      dispatch_method.call(context, context.next);
     });
 
-    self._dispatch.any.call(options.actionContext, self.next);
+    self._dispatch.any.call(context, context.next);
 
   }
   
@@ -244,7 +249,7 @@ function createController(options, parent) { //relative will be used to find cor
       Controller._children[file] = createController({
         baseDir: options.baseDir,
         relativeDir: options.relativeDir + file + '/',
-        actionContext: options.actionContext
+        actionContext: context
       }, Controller);
     }
   });

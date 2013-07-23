@@ -15,7 +15,7 @@ module.exports = (function (undefined) {
 
       var a = (a === undefined) ? '' : a;
 
-      this.View('', a);
+      this.Response.end(a);
     }
   };
 
